@@ -331,8 +331,9 @@ class agilent90000(agilentBaseInfiniium):
         yorigin = float(pre[8])
         yreference = int(float(pre[9]))
         
-        if type == 1:
-            raise scope.InvalidAcquisitionTypeException()
+        #This gives an error for the DSO9254A, but works without it!
+        #if type == 1:
+        #    raise scope.InvalidAcquisitionTypeException()
         
         if format != 2:
             raise UnexpectedResponseException()
