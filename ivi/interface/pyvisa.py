@@ -51,7 +51,7 @@ class PyVisaInstrument:
     "PyVisa wrapper instrument interface client"
     def __init__(self, resource, *args, **kwargs):
         if type(resource) is str:
-            self.instrument = visa_instrument_opener(resource, *args, **kwargs)
+            self.instrument = visa.ResourceManager().get_instrument(resource, *args, **kwargs)
             # For compatibility with new style PyVISA
             if not hasattr(self.instrument, 'trigger'):
                 self.instrument.trigger = self.instrument.assert_trigger
