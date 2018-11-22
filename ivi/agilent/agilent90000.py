@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 """
-
+import numpy as np
 from .agilentBaseInfiniium import *
 
 AcquisitionModeMapping = {
@@ -319,11 +319,12 @@ class agilent90000(agilentBaseInfiniium):
         # Read preamble
         
         pre = self._ask(":waveform:preamble?").split(',')
+        print(pre[2])
         
         format = int(pre[0])
         type = int(pre[1])
-        points = int(pre[2])
-        count = int(pre[3])
+        points = int(float(pre[2]))
+        count = int(float(pre[3]))
         xincrement = float(pre[4])
         xorigin = float(pre[5])
         xreference = int(float(pre[6]))
@@ -331,20 +332,25 @@ class agilent90000(agilentBaseInfiniium):
         yorigin = float(pre[8])
         yreference = int(float(pre[9]))
         
-        #This gives an error for the DSO9254A, but works without it!
-        #if type == 1:
-        #    raise scope.InvalidAcquisitionTypeException()
+        if type == 1:
+            raise scope.InvalidAcquisitionTypeException()
         
         if format != 2:
             raise UnexpectedResponseException()
         
         # Read waveform data
         raw_data = self._ask_for_ieee_block(":waveform:data?")
-        
+        #print('helo!')
         # Split out points and convert to time and voltage pairs
-        y_data = array.array('h', raw_data[0:points*2])
+        #print(type(array))
+        y_data = np.array(array.array('h', raw_data[0:points*2]))
+        ivec = np.arange(0,len(y_data))
+        time_vec = (ivec - xreference) * xincrement + xorigin
+        y_vec = (y_data - yreference) * yincrement + yorigin
+        data= [time_vec,y_vec]
         
-        data = [(((i - xreference) * xincrement) + xorigin, float('nan') if y == 31232 else ((y - yreference) * yincrement) + yorigin) for i, y in enumerate(y_data)]
+        #data = [(((i - xreference) * xincrement) + xorigin, float('nan') if y == 31232 else ((y - yreference) * yincrement) + yorigin) for i, y in enumerate(y_data)]
+        
         
         return data
     
